@@ -9,13 +9,15 @@
     <title>Products</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 20px;
-            background-color: #F4F3F2;
+            background-color: #f7f7f7;
+            color: #333;
         }
 
         h1 {
             text-align: center;
+            color: #4caf50;
         }
 
         ul {
@@ -24,7 +26,6 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-around;
-
         }
 
         li {
@@ -35,7 +36,9 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
-            background-color: white;
+            background-color: #fff;
+            box-sizing: border-box;
+            background-color: #ffffff; /* Product item background color */
         }
 
         li:hover {
@@ -64,12 +67,14 @@
         input {
             width: 50px;
             margin-right: 10px;
-            padding: 5px;
+            padding: 8px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             background-color: #4caf50;
             color: #fff;
             border: none;
@@ -81,14 +86,10 @@
             background-color: #45a049;
         }
 
-        .count-in-cart {
-            color: #333;
-            font-weight: bold;
-        }
-
         header {
             background-color: #333;
             padding: 15px 0;
+            color: #fff; /* Header text color */
         }
 
         nav {
@@ -103,19 +104,20 @@
         }
 
         .center {
-            justify-content: center;
+            justify-content: space-between;
             display: flex;
+            align-items: center;
         }
 
         .logo a {
             text-decoration: none;
             color: #fff;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 24px;
         }
 
         .right-menu {
-            margin-left: auto;
+            display: flex;
         }
 
         .right-menu a {

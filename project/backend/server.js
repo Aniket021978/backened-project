@@ -7,8 +7,8 @@ const cookieParser = require('cookie-parser');
 const Product = require('./model/product');
 const User = require('./model/user');
 const CartItem = require('./model/cartitem');
-const databaseUri = 'mongodb://127.0.0.1:27017/authapp';
-
+const databaseUri = 'mongodb+srv://aniket021978:aniket021978@cluster0.8zslwh8.mongodb.net/';
+const methodOverride = require('method-override');
 
 async function db(){
     await mongoose.connect(databaseUri);
@@ -23,7 +23,7 @@ db()
 //         collection:"sessions"
 //     }
 // )
-const PORT = 3000;
+const PORT = 4000;
 
 const application = express();
 
@@ -31,6 +31,7 @@ const application = express();
 application.set('view engine','ejs');
 application.use(cookieParser());
 application.use(express.urlencoded({extended:true}));
+application.use(methodOverride('_method')); 
 // application.use(session({
 //     secret:"thisisasecretkeytosigncookies",
 //     resave:false,
@@ -85,7 +86,6 @@ application.post('/register',async (req,res)=>{
     console.log(req.body);
     const {username,password} = req.body;
     try{
-        // check if the username and password is not empty
         if(!username || !password){
             res.status(401).render('register',{'error':"Enter username and password"})
         }
@@ -123,20 +123,20 @@ application.post('/login',async (req,res)=>{
     }
 })
 
-application.get('/cart',async (req,res)=>{
+application.get('/cart', async (req, res) => {
     try {
-        // get cart items from db
         const cartItems = await CartItem.find({}).populate('product');
-        // get total of all the products prices
-        const total = cartItems.reduce((acc,item)=>{
-                        acc + item.quantity * item.product.price,0 
-                    })
-        res.render('cart',{cart:cartItems,total});
+        const total = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+
+        console.log(cartItems);
+        res.render('cart', { cart: cartItems, total });
     } catch (error) {
         console.log(error);
-        res.status(500).render('cart',{'error':"Internal server error"})
+        res.status(500).render('cart', { 'error': "Internal server error" });
     }
-})
+});
+
+
 
 application.post('/addToCart',async (req,res)=>{
     try {
@@ -164,7 +164,65 @@ application.post('/addToCart',async (req,res)=>{
         res.status(500).render('cart',{'error':"Internal server error"})
     }
 })
-//start server
+application.delete('/removeFromCart/:productId', isAuthenticated, async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const existingCartItem = await CartItem.findOne({ product: productId });
+
+        if (!existingCartItem) {
+            return res.status(404).send("Item not found in the cart");
+        }
+        await CartItem.deleteOne({ product: productId });
+
+        res.redirect('/cart');
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('cart', { 'error': "Internal server error" });
+    }
+});
+
+application.put('/updateCart/:productId', isAuthenticated, async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const { quantity } = req.body;
+        const existingCartItem = await CartItem.findOne({ product: productId });
+
+        if (!existingCartItem) {
+            return res.status(404).send("Item not found in the cart");
+        }
+        existingCartItem.quantity = parseInt(quantity, 10);
+        await existingCartItem.save();
+
+        // Redirect back to the cart
+        res.redirect('/cart');
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('cart', { 'error': "Internal server error" });
+    }
+});
+
+application.post('/checkout', isAuthenticated, async (req, res) => {
+    try {
+        res.render('checkout-success', { message: "Checkout successful!" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('checkout', { 'error': "Internal server error" });
+    }
+});
+
+application.get('/checkout', isAuthenticated, async (req, res) => {
+    try {
+        const userDetails = await User.findOne({});
+        const cartItems = await CartItem.find({}).populate('product');
+        const total = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+
+        res.render('checkout', { user: userDetails, cart: cartItems, total });
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('checkout', { 'error': "Internal server error" });
+    }
+});
+
 application.listen(PORT,()=>{
     console.log(`Listening to port ${PORT}`);
 })

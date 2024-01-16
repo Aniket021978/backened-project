@@ -71,32 +71,67 @@
         .checkout-btn:hover {
             background-color: #45a049;
         }
+        /* Add these styles to the existing CSS */
+
+/* Style for the "Update" button */
+form button[type="submit"] {
+    background-color: red;
+    color: #fff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for the "Update" button */
+form button[type="submit"]:hover {
+    background-color: #2980b9;
+}
+.update{
+    position: relative;
+    top: 40px;
+    right: 50px;
+}
+.submit{
+    position: relative;
+    left: 40px;
+    top: 8px;
+}
+
     </style>
 </head>
 
 <body>
     <h1>Shopping Cart</h1>
-    <% if (cart.length> 0) { %>
+    <% if (cart.length > 0) { %>
         <ul>
-            <% cart.forEach(item=> { %>
+            <% cart.forEach(item => { %>
                 <li>
-                    <h3>
-                        <%= item.product.name %>
-                    </h3>
+                    <h3><%= item.product.name %></h3>
                     <img src="<%= item.product.image %>" alt="<%= item.product.name %> Image" width="100">
-                    <p>Quantity: <%= item.quantity %>
-                    </p>
-                    <p>Price: $<%= item.product.price %>
-                    </p>
+                    <p>Quantity: <%= item.quantity %></p>
+                    <p>Price: $<%= item.product.price %></p>
+
+                    <form method="POST" action="/updateCart/<%= item.product._id %>?_method=PUT">
+                        <input type="hidden" name="_method" value="PUT">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" name="quantity" value="<%= item.quantity %>" min="1" required>
+                        <button class="update" type="submit">Update</button>
+                    </form>
+    
+                    <form method="POST" action="/removeFromCart/<%= item.product._id %>?_method=DELETE">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button class="submit" type="submit">Remove from Cart</button>
+                    </form>
                 </li>
-                <% }); %>
+            <% }); %>
         </ul>
-        <p class="total">Total: $<%= total %>
-        </p>
+        <p class="total">Total: $<%= total %></p>
         <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
-        <% } else { %>
-            <p class="empty-cart">Your shopping cart is empty.</p>
-            <% } %>
+    <% } else { %>
+        <p class="empty-cart">Your shopping cart is empty.</p>
+    <% } %>
 </body>
 
 </html>
